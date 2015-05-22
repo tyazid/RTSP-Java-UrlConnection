@@ -12,6 +12,6 @@ public interface ServerRequestMessageListener extends EventListener{
      * 
      * @param event the event which identifies the server request message
      */
-	void RequestMessageReceived(ServerRequestMessageEvent event);
+	void requestMessageReceived(ServerRequestMessageEvent event);
 
 }

@@ -14,23 +14,22 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.net.UnknownServiceException;
-import java.security.AccessController;
 import java.security.Permission;
-import java.security.PrivilegedAction;
 import java.util.ArrayList;
-import java.util.EventListener;
-import java.util.EventObject;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Vector;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import com.net.rtsp.content.Content;
 import com.net.rtsp.content.ResponseContent;
-import com.net.rtsp.util.Dispatcher;
-import com.net.rtsp.util.EventQueue;
-import com.net.rtsp.util.SimpleEventQueue;
 
 /**
  * A URLConnection with support for RTSP-specific features. See <A HREF="http://www.ietf.org/rfc/rfc2326.txt?number=2326"> the RFC </A> for
@@ -61,50 +60,33 @@ public class RtspURLConnection extends URLConnection implements Protocol, RtspMe
 	
 	
 	protected boolean describNeeded;
+    protected final EventDispatcher eventq;
+ 
 
 	public RtspURLConnection(URL url) {
-		super(url);
-		staticInit();
-		computeHostAndPort();
-		_Cseq = 1;
-			AccessController.doPrivileged(new PrivilegedAction() {
-				public Object run() {
-					eventq = new SimpleEventQueue(new Dispatcher() {
-						public void dispatch(EventListener[] listener, EventObject event) {
-							for (int i = 0; i < listener.length; i++)
-								try {
-									((ServerRequestMessageListener) listener[i]).RequestMessageReceived((ServerRequestMessageEvent) event);
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-						}
-					});
-					return null;
-				}
-			});
-
+		this(false,url);
+	  
 	}
 	
 	protected RtspURLConnection(boolean describeMandatory,URL url) {
 		super(url);
 		staticInit();
 		computeHostAndPort();
-		
-			AccessController.doPrivileged(new PrivilegedAction() {
-				public Object run() {
-					eventq = new SimpleEventQueue(new Dispatcher() {
-						public void dispatch(EventListener[] listener, EventObject event) {
-							for (int i = 0; i < listener.length; i++)
-								try {
-									((ServerRequestMessageListener) listener[i]).RequestMessageReceived((ServerRequestMessageEvent) event);
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-						}
-					});
-					return null;
-				}
-			});
+		_Cseq = 1;
+		eventq= new EventDispatcher();
+		 
+//					eventq = new SimpleEventQueue(new Dispatcher() {
+//						public void dispatch(EventListener[] listener, EventObject event) {
+//							for (int i = 0; i < listener.length; i++)
+//								try {
+//									((ServerRequestMessageListener) listener[i]).requestMessageReceived((ServerRequestMessageEvent) event);
+//								} catch (Exception e) {
+//									e.printStackTrace();
+//								}
+//						}
+//					});
+				
+				 
 
 	}
 
@@ -119,12 +101,6 @@ public class RtspURLConnection extends URLConnection implements Protocol, RtspMe
 	 * @see #removeServerRequestMessageListener(ServerRequestMessageListener)
 	 */
 	public void addServerRequestMessageListener(ServerRequestMessageListener l) {
-		Object[] objs = eventq.getListeners();
-		for (int i = objs.length - 1; i >= 0; i--) {
-			if (objs[i] == l)
-				return;
-		}
-
 		eventq.addListener(l);
 	}
 
@@ -884,7 +860,6 @@ public class RtspURLConnection extends URLConnection implements Protocol, RtspMe
 
 	}
 
-	protected EventQueue eventq;
 
 	private void computeHostAndPort() {
 		String host;
@@ -1135,7 +1110,7 @@ public class RtspURLConnection extends URLConnection implements Protocol, RtspMe
 				e.printStackTrace();
 			}
 		//	System.err.println("--NOTIF CLIENT WITH EVENT ServerRequestMessageEvent");
-			eventq.pushEvent(new ServerRequestMessageEvent(RtspURLConnection.this,req));
+			eventq.postEvent(new ServerRequestMessageEvent(RtspURLConnection.this,req));
 		}
 	}
 
@@ -1370,4 +1345,81 @@ public class RtspURLConnection extends URLConnection implements Protocol, RtspMe
 		}
 	}
 
+	
+	/*EVT Hdl*/
+	public static final class EventDispatcher {
+		private final Set<ServerRequestMessageListener> listeners;
+		private BlockingQueue<ServerRequestMessageEvent> q;
+		private Timer t;
+		private boolean alive = true;
+		private Thread notifyer;
+
+		TimerTask task = new TimerTask() {
+			@Override
+			public void run() {
+				alive = true;
+				notifyer = Thread.currentThread();
+				ServerRequestMessageEvent e;
+				while (alive) {
+					try {
+						e = q.take();
+					} catch (InterruptedException e2) {
+						break;
+					}
+					ServerRequestMessageListener[]  notifs ;
+					synchronized (listeners) {
+					  notifs =listeners.toArray( new ServerRequestMessageListener[listeners.size()]);
+						
+					}
+					for (ServerRequestMessageListener l : notifs) {
+						
+						try {
+							System.out.println("####### NOTIFY e = "+e);
+							l.requestMessageReceived(e);
+						//	l.onEvent(e);
+						} catch (Exception e1) {
+							e1.printStackTrace();
+							
+						}
+					}
+				}
+			}
+		};
+		
+		
+
+		  EventDispatcher( ) {
+		    this. listeners = new HashSet<ServerRequestMessageListener>();
+			this.q = new LinkedBlockingQueue<ServerRequestMessageEvent>();
+			this.t = new Timer();
+			this.t.schedule(task, 0L);
+
+		}
+		  
+		void addListener(ServerRequestMessageListener l) {
+			synchronized (listeners) {
+				listeners.add(l);
+			}
+		}
+
+		void removeListener(ServerRequestMessageListener l) {
+			synchronized (listeners) {
+				listeners.remove(l);
+			}
+		}
+		public synchronized void kill() {
+			if (!alive)
+				return;
+			alive = false;
+			t.cancel();
+			if (notifyer != null)
+				notifyer.interrupt();
+			q = null;
+		}
+
+		public synchronized void postEvent(ServerRequestMessageEvent e) {
+			if (q != null)
+				q.add(e);
+		}
+	}
 }

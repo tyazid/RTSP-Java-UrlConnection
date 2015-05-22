@@ -309,7 +309,7 @@ static void setArgs(String[] args) {
 		urlc.connect();
 		urlc.addServerRequestMessageListener(new ServerRequestMessageListener() {
 
-			public void RequestMessageReceived(ServerRequestMessageEvent event) {
+			public void requestMessageReceived(ServerRequestMessageEvent event) {
 				
 				com.net.rtsp.Debug.println(new Date()+" EVENT FROM SRV : "+event.getMessage());
 				
@@ -356,8 +356,13 @@ static void setArgs(String[] args) {
 		 	urlc.play( );
 			com.net.rtsp.Debug.println(" ["+new Date()+"] PLAY RESPONSE : "+urlc.getResponseCode());
 		    }
-			System.err.println("\n\n["+new Date()+"] Wait for 1 sec");
-			Thread.sleep(1000);
+			System.err.println("\n\n["+new Date()+"] Wait for 10 MIN c");
+			 
+			for (int i = 0; i < 4; i++) {
+				 System.out.print(".");
+				 Thread.sleep(1000*5);
+			}
+			
 			//System.err.println("OPTIONS");
 			//urlc.options();
 			
