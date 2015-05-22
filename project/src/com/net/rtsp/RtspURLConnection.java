@@ -531,7 +531,7 @@ public class RtspURLConnection extends URLConnection implements Protocol, RtspMe
 		//com.net.rtsp.Debug.println("RtspURLConnection.connect("+this+") connected = "+connected);
 		if (connected)
 			return;
-		Vector v = Debug.debug_enabled ? new Vector() : null;
+		Vector<Exception> v = Debug.debug_enabled ? new Vector<Exception>() : null;
 		for (int i = 0; i < port.length; i++) {
 			try {
 				connection = new Connection(host, port[i]);
@@ -543,16 +543,9 @@ public class RtspURLConnection extends URLConnection implements Protocol, RtspMe
 			}
 		}
 		if (connection == null) {
-			if (Debug.debug_enabled) {
-				
-				Object[] errs = new Object[v.size()];
-				v.copyInto(errs);
-				//(IOException[]) v.toArray(new IOException[v.size()]);
-				for (int i = 0; i < errs.length; i++) {
-					com.net.rtsp.Debug.println(" ERR WHEN TRYING TO CONNECT USING PORT " + port[i]);
-					((Exception)errs[i]).printStackTrace();
-				}
-			}
+			if (Debug.debug_enabled) 
+				for (Exception exception : v) 
+					exception.printStackTrace();
 			throw new ConnectException("cannot create a connection.");
 		}
 
@@ -826,7 +819,7 @@ public class RtspURLConnection extends URLConnection implements Protocol, RtspMe
 			if (pub != null) {
 				StringTokenizer st = new StringTokenizer(pub, ",");
 				if (st.countTokens() > 0) {
-					List l = new ArrayList();
+					List<String> l = new ArrayList<String>();
 					l.add(OPTIONS);
 					String s;
 					while (st.hasMoreTokens()) {
@@ -836,7 +829,7 @@ public class RtspURLConnection extends URLConnection implements Protocol, RtspMe
 							l.add(s);
 						}
 					}
-					this.supportedMethods = (String[]) l.toArray(new String[l.size()]);
+					this.supportedMethods = l.toArray(new String[l.size()]);
 					return;
 				}
 			}
@@ -974,7 +967,7 @@ public class RtspURLConnection extends URLConnection implements Protocol, RtspMe
 				setContentHandlerFactory(RtspContentHandlerFactory.getInstance());
 				proxyHost = System.getProperty("rtsp.proxyHost");
 				proxyPort = Integer.getInteger("rtsp.proxyPort", 554).intValue();
-				List l = new ArrayList();
+				List<String> l = new ArrayList<String>();
 				String rawList = System.getProperty("rtsp.nonProxyHosts");
 				if (rawList != null) {
 					java.util.StringTokenizer st = new java.util.StringTokenizer(rawList, "|", false);
@@ -986,7 +979,7 @@ public class RtspURLConnection extends URLConnection implements Protocol, RtspMe
 						e.printStackTrace();
 					}
 				}
-				noProxy = (String[]) l.toArray(new String[l.size()]);
+				noProxy =  l.toArray(new String[l.size()]);
 				Arrays.sort(noProxy);
 				init = true;
 			}
@@ -1282,7 +1275,7 @@ public class RtspURLConnection extends URLConnection implements Protocol, RtspMe
 				// may be a method...
 				ByteArrayInputStream bin = new ByteArrayInputStream(b);
 				BufferedReader br = new BufferedReader(new InputStreamReader(bin));
-				List lines = new ArrayList();
+				List<String> lines = new ArrayList<String>();
 				String l;
 				RequestMessage h = new RequestMessage();
 				// header
