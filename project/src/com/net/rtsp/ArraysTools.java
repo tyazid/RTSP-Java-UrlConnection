@@ -1,8 +1,5 @@
 package com.net.rtsp;
 
-import java.util.Arrays;
-
-import com.sun.org.apache.xml.internal.utils.StringComparable;
 
 //PJava compliance.
   class ArraysTools {
