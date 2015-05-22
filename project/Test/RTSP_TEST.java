@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Date;
 
 import com.net.rtsp.FieldAttributes;
+import com.net.rtsp.ResponseTimedOutException;
 import com.net.rtsp.RtspContentHandlerFactory;
 import com.net.rtsp.RtspURLConnection;
 import com.net.rtsp.RtspURLStreamHandlerFactory;
@@ -293,7 +294,7 @@ static void setArgs(String[] args) {
 	  setArgs(args);
 	
 	// URL.setURLStreamHandlerFactory( new S1C1URLStreamHandlerFactory());
-	 URL.setURLStreamHandlerFactory( new RtspURLStreamHandlerFactory());
+	  java.net.URL.setURLStreamHandlerFactory( new RtspURLStreamHandlerFactory());
 
 	//	System.getProperties().put("rtsp.request.server.handler.factory.0.cl", "mhwaxp.net.rtsp.server.ServerS1MessageRequestHandler");
 	//	System.getProperties().put("rtsp.request.client.factory.0.cl", "com.net.rtsp.imp.request.client.RequestFactory");
@@ -324,8 +325,8 @@ static void setArgs(String[] args) {
 			System.err.println(""+new Date()+" STATUS LINE ="+urlc.getStatus()+" C="+urlc.getResponseCode());
 			System.err.println(""+new Date()+" connected. urlc.CT=" + urlc.getContentType() + " C.L=" + urlc.getContentLength()+" call setup");
 			FieldAttributes attrib = new FieldAttributes();
-			attrib.addField("Require", "com.comcast.ngod.s1");
-			urlc.setup(null, attrib);//1234);
+		
+			urlc.setup(null, null);//1234);
 			System.err.println(""+new Date()+" TRANSPORT ="+urlc.getHeaderField( "Transport"));
 			
 			System.err.println(""+new Date()+" CNT ="+urlc.getContent());
@@ -378,11 +379,12 @@ static void setArgs(String[] args) {
 			com.net.rtsp.Debug.println(" WAIT FOR EVENT FROM SRV.");
 			Thread.sleep(10000);
 			com.net.rtsp.Debug.println("["+new Date()+"]    teardown");
-		 	urlc.teardown();
+				urlc.teardown();
 			
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			if(!(e instanceof ResponseTimedOutException))
+		        e.printStackTrace();
+			else System.out.println( " Serever connection time out; connection seems closed without response after teardown cmd.");
 		}
 		
 		System.out.flush();
