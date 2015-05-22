@@ -16,6 +16,7 @@ import java.net.UnknownHostException;
 import java.net.UnknownServiceException;
 import java.security.Permission;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Observable;
@@ -830,7 +831,7 @@ public class RtspURLConnection extends URLConnection implements Protocol, RtspMe
 					String s;
 					while (st.hasMoreTokens()) {
 						s = st.nextToken().trim();
-						if (ArraysTools.binarySearch(getPlatformPossibleMethods(), s) >= 0) {
+						if (Arrays.binarySearch(getPlatformPossibleMethods(), s) >= 0) {
 							Debug.println(" ADD SRV METHOD " + s);
 							l.add(s);
 						}
@@ -871,7 +872,7 @@ public class RtspURLConnection extends URLConnection implements Protocol, RtspMe
 		}
 
 		boolean useProxy = proxyHost != null
-				&& (noProxy == null || (ArraysTools.binarySearch(noProxy, url.getHost().toLowerCase()) < 0 && ArraysTools.binarySearch(noProxy, host) < 0));
+				&& (noProxy == null || (Arrays.binarySearch(noProxy, url.getHost().toLowerCase()) < 0 && Arrays.binarySearch(noProxy, host) < 0));
 		if (useProxy) {
 			host = proxyHost;
 			if (proxyPort != -1) {
@@ -943,7 +944,7 @@ public class RtspURLConnection extends URLConnection implements Protocol, RtspMe
 
 	private static String[] POSSIBLE_METHODS = new String[] { OPTIONS, DESCRIBE, PLAY, PAUSE, TEARDOWN, SETUP, SET_PARAMETER, GET_PARAMETER, ANNOUNCE };
 	static {
-		ArraysTools.sort(POSSIBLE_METHODS);
+		Arrays.sort(POSSIBLE_METHODS);
 	}
 
 	private static boolean init;
@@ -986,7 +987,7 @@ public class RtspURLConnection extends URLConnection implements Protocol, RtspMe
 					}
 				}
 				noProxy = (String[]) l.toArray(new String[l.size()]);
-				ArraysTools.sort(noProxy);
+				Arrays.sort(noProxy);
 				init = true;
 			}
 		}
@@ -1098,7 +1099,7 @@ public class RtspURLConnection extends URLConnection implements Protocol, RtspMe
 //			}
 			rl = rl.substring(0, rl.indexOf(' '));
 			//com.net.rtsp.Debug.println("*/*/1/*/");
-			if (ArraysTools.binarySearch(supportedMethod, rl) < 0) {
+			if (Arrays.binarySearch(supportedMethod, rl) < 0) {
 				s.sendResponse(error(ResponseCodes.RTSP_NOT_IMPLEMENTED, req));
 				return;
 			}
