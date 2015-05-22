@@ -30,7 +30,7 @@ import com.net.rtsp.content.Content;
 import com.net.rtsp.content.ResponseContent;
 import com.net.rtsp.util.Dispatcher;
 import com.net.rtsp.util.EventQueue;
-import com.net.rtsp.util.XEventQueue;
+import com.net.rtsp.util.SimpleEventQueue;
 
 /**
  * A URLConnection with support for RTSP-specific features. See <A HREF="http://www.ietf.org/rfc/rfc2326.txt?number=2326"> the RFC </A> for
@@ -69,7 +69,7 @@ public class RtspURLConnection extends URLConnection implements Protocol, RtspMe
 		_Cseq = 1;
 			AccessController.doPrivileged(new PrivilegedAction() {
 				public Object run() {
-					eventq = new XEventQueue(new Dispatcher() {
+					eventq = new SimpleEventQueue(new Dispatcher() {
 						public void dispatch(EventListener[] listener, EventObject event) {
 							for (int i = 0; i < listener.length; i++)
 								try {
@@ -92,7 +92,7 @@ public class RtspURLConnection extends URLConnection implements Protocol, RtspMe
 		
 			AccessController.doPrivileged(new PrivilegedAction() {
 				public Object run() {
-					eventq = new XEventQueue(new Dispatcher() {
+					eventq = new SimpleEventQueue(new Dispatcher() {
 						public void dispatch(EventListener[] listener, EventObject event) {
 							for (int i = 0; i < listener.length; i++)
 								try {
@@ -799,7 +799,7 @@ public class RtspURLConnection extends URLConnection implements Protocol, RtspMe
 			setCseq(r.doRequest(this, getClient(), requests, responses, getCseq()));
 			com.net.rtsp.Debug.println("####### RtspURLConnection.doCmd("+cmd+") CSEQ SET !!");
 		} catch (IOException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 			if (e instanceof InterruptedIOException)
 				cleanup();
 			throw e;
@@ -1199,15 +1199,14 @@ public class RtspURLConnection extends URLConnection implements Protocol, RtspMe
 			boolean timeout = connection.isConnectionAlive()?waitForResponse(timeOut):true;
 			com.net.rtsp.Debug.println("Client.sendRequest() T-OUT =" + timeout);
 			if (!timeout) {
-				if (parse(response, this.response)) {
+				if (parse(response, this.response)) 
 					return;
-				}
 				throw new IOException("server response syntax error");// send
 				// it to
 				// srv
 				// --> server message OPTION,ANNOUNCE,PARM
 			}
-			throw new IOException("server response time out");
+			throw new ResponseTimedOutException("server response time out");
 		}
 
 		private synchronized boolean waitForResponse(int time) {
