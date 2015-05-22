@@ -26,13 +26,13 @@ public abstract class ClientRequestFactory {
 		synchronized (ClientRequestFactory.class) {
 			if (ClientRequestFactory.instance == null) {
 				int i = 0;
-				List l = new ArrayList();
+				List<Object> l = new ArrayList<Object>();
 				java.util.Properties sysprop = System.getProperties();
 				String cln;
 				while ((cln = sysprop.getProperty(prep + i + ".cl")) != null) {
 					try {
 						com.net.rtsp.Debug.println("ClientRequestFactory.getInstance() cln="+cln);
-						Class cl = Class.forName(cln);
+						Class<?> cl = Class.forName(cln);
 						l.add(cl.newInstance());
 					} catch (Exception e) {
 						e.printStackTrace();

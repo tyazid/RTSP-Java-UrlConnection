@@ -15,7 +15,7 @@ import com.net.rtsp.content.Content;
 public abstract class Message {
 	private static final String EOL = "\r\n";
 
-	protected List list;
+	protected List<kvs> list;
 
 	private Content content;
 
@@ -49,7 +49,7 @@ public abstract class Message {
 	 * Constructor
 	 */
 	public Message() {
-		list = new ArrayList();
+		list = new ArrayList<kvs>();
 	}
 
 	/**

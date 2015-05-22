@@ -15,11 +15,11 @@ import java.util.Vector;
  * 
  */
 public class RtspContentHandlerFactory implements ContentHandlerFactory {
-	private static HashMap types;
+	private static HashMap<String, Class<?>> types;
 
 	private  String defaultPrefixPackage;
 	static {
-		types = new HashMap();
+		types = new HashMap<String, Class<?>>();
 
 		// prefixPackage = RtspContentHandlerFactory.class.getName();
 		//		
@@ -35,10 +35,10 @@ public class RtspContentHandlerFactory implements ContentHandlerFactory {
 
 	private static RtspContentHandlerFactory instance;
 
-	private Vector prefixes;
+	private Vector<String> prefixes;
 
 	private RtspContentHandlerFactory() {
-		prefixes = new Vector();
+		prefixes = new Vector<String>();
 		defaultPrefixPackage = Config.getValue("rtsp.content.handler.factory.package.prefix.default");
 		prefixes.addElement(Config.getValue("rtsp.content.handler.factory.package.prefix.default"));
 	}
@@ -104,7 +104,7 @@ public class RtspContentHandlerFactory implements ContentHandlerFactory {
 	 */
 	public final ContentHandler createContentHandler(String mimetype) {
 		mimetype = mimetype.toLowerCase();
-		Class ctcl = (Class) types.get(mimetype);
+		Class<?> ctcl =  types.get(mimetype);
 		if (ctcl == null) {
 
 			String mime_cl = mimetype.replace('\\', '.');

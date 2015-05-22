@@ -17,11 +17,11 @@ import java.util.Set;
  * 
  */
 public final class MediaDescriptions implements Cloneable {
-	private HashMap map;
+	private HashMap<String, Object[]> map;
 
 	private static final String[] EMPTY_STRINGS = new String[0];
 
-	private MediaDescriptions(HashMap map) {
+	private MediaDescriptions(HashMap<String, Object[]> map) {
 		this.map = map;
 	}
 
@@ -35,12 +35,12 @@ public final class MediaDescriptions implements Cloneable {
 	 *            MediaDescriptions(pattern= < media > < port > < proto > < fmt >)
 	 */
 	MediaDescriptions(String spec) {
-		map = new HashMap();
+		map = new HashMap<String, Object[]>();
 		addDescritpion(spec);
 	}
 
 	public MediaDescriptions(String mediaType, int mediaPort, String transport, String fmt) {
-		map = new HashMap();
+		map = new HashMap<String, Object[]>();
 		addMediaType(mediaType, mediaPort, transport, fmt);
 	}
 
@@ -53,8 +53,8 @@ public final class MediaDescriptions implements Cloneable {
 	public String[] getMediaTypes() {
 		if (map.isEmpty())
 			return EMPTY_STRINGS;
-		Set kys = map.keySet();
-		return (String[]) kys.toArray(new String[kys.size()]);
+		Set<String> kys = map.keySet();
+		return  kys.toArray(new String[kys.size()]);
 	}
 
 	/**
@@ -98,13 +98,13 @@ public final class MediaDescriptions implements Cloneable {
 
 	private Object getField(String key, int indx) {
 		if (map.containsKey(key))
-			return ((Object[]) map.get(key))[indx];
+			return  map.get(key)[indx];
 
 		return null;
 	}
 
 	public Object clone() {
-		return new MediaDescriptions((HashMap) map.clone());
+		return new MediaDescriptions( (HashMap<String, Object[]>) map.clone());
 
 	}
 

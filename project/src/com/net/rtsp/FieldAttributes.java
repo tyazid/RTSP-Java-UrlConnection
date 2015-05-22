@@ -8,11 +8,11 @@ import java.util.Set;
  * string values
  */
 public final class FieldAttributes implements Cloneable {
-	private HashMap map;
+	private HashMap<String,String> map;
 
 	private static final String[] EMPTY_STRINGS = new String[0];
 
-	private FieldAttributes(HashMap map) {
+	private FieldAttributes(HashMap<String,String> map) {
 		this.map = map;
 	}
 
@@ -20,7 +20,7 @@ public final class FieldAttributes implements Cloneable {
 	 * Default constructor.
 	 */
 	public FieldAttributes() {
-		this(new HashMap());
+		this(new HashMap<String,String>());
 	}
 
 	/**
@@ -29,8 +29,8 @@ public final class FieldAttributes implements Cloneable {
 	public String[] getKeys() {
 		if (map.isEmpty())
 			return EMPTY_STRINGS;
-		Set kys = map.keySet();
-		return (String[]) kys.toArray(new String[kys.size()]);
+		Set<String> kys = map.keySet();
+		return  kys.toArray(new String[kys.size()]);
 	}
 
 	/**
@@ -51,7 +51,7 @@ public final class FieldAttributes implements Cloneable {
 	 * values themselves are not cloned.
 	 */
 	public Object clone() throws CloneNotSupportedException {
-		return new FieldAttributes((HashMap) map.clone());
+		return new FieldAttributes(  (HashMap<String, String>) map.clone());
 
 	}
 
