@@ -296,10 +296,7 @@ static void setArgs(String[] args) {
 	// URL.setURLStreamHandlerFactory( new S1C1URLStreamHandlerFactory());
 	  java.net.URL.setURLStreamHandlerFactory( new RtspURLStreamHandlerFactory());
 
-	//	System.getProperties().put("rtsp.request.server.handler.factory.0.cl", "mhwaxp.net.rtsp.server.ServerS1MessageRequestHandler");
-	//	System.getProperties().put("rtsp.request.client.factory.0.cl", "com.net.rtsp.imp.request.client.RequestFactory");
-	//	System.getProperties().put("rtsp.request.client.factory.1.cl", "mhwaxp.net.rtsp.client.S1ClientRequestFactory");
-	
+ 
 	 //	if(true)return;
 		 java.net.URL url = new URL(urlStr);// RTSP/1.0");//;//;;;
 		//java.net.URL url = new URL("rtsp://172.21.104.62:554/Dynosaure.mpg");
